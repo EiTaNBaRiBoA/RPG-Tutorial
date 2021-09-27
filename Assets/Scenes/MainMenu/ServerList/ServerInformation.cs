@@ -10,9 +10,10 @@ public class ServerInformation : NetworkBehaviour
 {
     public Text serverName, ServerStatus;
 
-    private void Start()
+    private void OnConnectedToServer()
     {
-
+        NetworkManager.Singleton.StartClient();
     }
+
 
 }

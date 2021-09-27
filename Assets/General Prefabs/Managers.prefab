@@ -86,6 +86,8 @@ MonoBehaviour:
     RegisteredScenes:
     - Main menu
     - Splash
+    - 
+    - Game
     AllowRuntimeSceneChanges: 0
     NetworkPrefabs: []
     PlayerPrefabHash:
