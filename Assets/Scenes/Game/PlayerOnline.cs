@@ -8,7 +8,12 @@ public class PlayerOnline : NetworkBehaviour
 {
     //bool isPlayerInputInit = false; to local palyer
     public GameplayInput inputActions;
-    CharacterController characterController;
+    public CharacterController characterController;
+    [Header("Falling")]
+
+    [SerializeField] public LayerMask ground;
+    public Transform groundCheck;
+    private float fallSpeed = 0;
 
     private void Awake()
     {
@@ -32,6 +37,15 @@ public class PlayerOnline : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (CheckIsGround())
+        {
+            fallSpeed = Mathf.Epsilon;
+        }
+        else
+        {
+            fallSpeed += Physics.gravity.y * Time.fixedDeltaTime;
+            characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime, 0));
+        }
 
 
         if (inputActions.Player.Movement.IsPressed())
@@ -48,20 +62,34 @@ public class PlayerOnline : NetworkBehaviour
     {
         PlayerMover(ctx.ReadValue<Vector2>());
     }
+    void JumpPlayer(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (CheckIsGround())
+        {
+            fallSpeed = Mathf.Sqrt(50f * -2 * Physics.gravity.y);
+            characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime, 0));
+        }
+    }
     private bool CheckIsGround()
     {
-        return false;
-        //return Physics.CheckSphere(characterController.transform.position, characterController.radius, ground);
+        return Physics.CheckSphere(groundCheck.position, characterController.radius * 2, ground);
     }
 
     private void OnEnable()
     {
         inputActions.Enable();
         inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
+        inputActions.Player.Jump.performed += ctx => JumpPlayer(ctx);
     }
 
     private void OnDisable()
     {
         inputActions.Disable();
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(groundCheck.position, characterController.radius * 2);
+    }
+
 }
