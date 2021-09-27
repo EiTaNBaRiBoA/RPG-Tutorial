@@ -18,7 +18,7 @@ public class NetworkGameManager : NetworkManager
     private void Awake()
     {
 
-        NetworkSceneManager.OnSceneSwitched += SpawnPlayerServerRpc;
+        NetworkSceneManager.OnSceneSwitched += () => SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
     }
     void Update()
     {
@@ -28,7 +28,7 @@ public class NetworkGameManager : NetworkManager
             {
                 InstantiateServerRPC(NetworkManager.Singleton.LocalClientId);
             }
-            if (IsClient)
+            if (IsClient && !IsHost)
             {
                 SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
             }
@@ -48,10 +48,11 @@ public class NetworkGameManager : NetworkManager
         }
     }
     [ServerRpc]
-    public void SpawnPlayerServerRpc()
+    public void SpawnPlayerServerRpc(ulong id)
     {
         Debug.Log("Completed");
-        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnWithOwnership(newPlayer);
+        hasSpawned = true;
+        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnWithOwnership(id);
 
     }
 }

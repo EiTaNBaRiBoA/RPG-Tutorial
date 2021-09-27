@@ -13,7 +13,7 @@ public class ServerInformation : NetworkBehaviour
 
     private void Awake()
     {
-        //NetworkSceneManager.OnSceneSwitched += OnConnectedToServer();
+        FindObjectOfType<NetworkGameManager>().player = playerObject;
     }
     public void OnConnectedToServer()
     {
@@ -22,7 +22,7 @@ public class ServerInformation : NetworkBehaviour
     public void HostServer()
     {
         NetworkManager.Singleton.StartHost();
-        FindObjectOfType<NetworkGameManager>().player = playerObject;
+
     }
 
 
