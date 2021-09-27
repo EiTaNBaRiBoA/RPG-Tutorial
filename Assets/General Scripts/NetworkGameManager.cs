@@ -25,7 +25,7 @@ public class NetworkGameManager : NetworkManager
 
             }
         }
-        if (!IsHost && !hasSpawned && IsClient)
+        if (!IsHost && !hasSpawned && IsConnectedClient)
         {
             if (sceneSwitchProgress == null)
                 InstantiateServerRPC();
