@@ -16,7 +16,7 @@ public class PlayerSpawner : NetworkBehaviour
         Debug.Log("Owner");
         if (!hasSpawned)
         {
-            SpawnPlayerServerRpc(OwnerClientId);
+            SpawnPlayerServerRpc(NetworkManager.LocalClientId);
         }
     }
 
