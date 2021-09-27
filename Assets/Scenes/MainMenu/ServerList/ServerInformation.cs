@@ -18,6 +18,10 @@ public class ServerInformation : NetworkBehaviour
     public void OnConnectedToServer()
     {
         NetworkManager.Singleton.StartClient();
+    }
+    public void HostServer()
+    {
+        NetworkManager.Singleton.StartHost();
         FindObjectOfType<NetworkGameManager>().player = playerObject;
     }
 

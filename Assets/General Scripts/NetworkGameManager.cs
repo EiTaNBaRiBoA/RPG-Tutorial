@@ -17,31 +17,34 @@ public class NetworkGameManager : NetworkManager
     // Update is called once per frame
     void Update()
     {
-        if (IsHost && !hasSpawned)
+
+        if (!hasSpawned)
         {
-            if (sceneSwitchProgress == null)
+            if (IsHost && IsClient)
             {
-                sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
-
+                InstantiateServerRPC(NetworkManager.Singleton.LocalClientId);
             }
-        }
-        if (!IsHost && !hasSpawned && IsConnectedClient)
-        {
-            if (sceneSwitchProgress == null)
-                InstantiateServerRPC();
-        }
-
-        if (sceneSwitchProgress != null && sceneSwitchProgress.IsCompleted && !hasSpawned)
-        {
-            hasSpawned = true;
-            Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
         }
     }
 
 
     [ServerRpc]
-    private void InstantiateServerRPC()
+    private void InstantiateServerRPC(ulong id)
     {
-        sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
+        if (IsServer)
+        {
+            sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
+            hasSpawned = true;
+            StartCoroutine(SpawnPlayer());
+        }
+    }
+    public IEnumerator SpawnPlayer()
+    {
+        while (!sceneSwitchProgress.IsCompleted)
+        {
+            yield return null;
+        }
+        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
+
     }
 }
