@@ -15,14 +15,22 @@ public class NetworkGameManager : NetworkManager
     private ulong newPlayer;
     #endregion
 
-    // Update is called once per frame
+    private void Awake()
+    {
+
+        NetworkSceneManager.OnSceneSwitched += SpawnPlayerServerRpc;
+    }
     void Update()
     {
         if (!hasSpawned)
         {
-            if (IsHost && IsClient)
+            if (IsHost)
             {
                 InstantiateServerRPC(NetworkManager.Singleton.LocalClientId);
+            }
+            if (IsClient)
+            {
+                SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
             }
         }
     }
@@ -33,16 +41,17 @@ public class NetworkGameManager : NetworkManager
     {
         if (IsServer)
         {
+            Debug.Log("Switching scenes");
             newPlayer = id;
-            NetworkSceneManager.OnSceneSwitched += SpawnPlayer;
             sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
             hasSpawned = true;
         }
     }
-    public void SpawnPlayer()
+    [ServerRpc]
+    public void SpawnPlayerServerRpc()
     {
         Debug.Log("Completed");
-        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnWithOwnership(NetworkManager.Singleton.LocalClientId);
+        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnWithOwnership(newPlayer);
 
     }
 }
