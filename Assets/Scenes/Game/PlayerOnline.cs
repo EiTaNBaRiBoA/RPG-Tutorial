@@ -3,10 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
 using UnityEngine.InputSystem;
+using MLAPI.NetworkVariable;
 
 public class PlayerOnline : NetworkBehaviour
 {
-    //bool isPlayerInputInit = false; to local palyer
+    #region UpdatingVisualsToAllPlayers
+    public NetworkVariable<Vector3> positionUpdate = new NetworkVariable<Vector3>(new NetworkVariableSettings
+    {
+        WritePermission = NetworkVariablePermission.OwnerOnly,
+        ReadPermission = NetworkVariablePermission.Everyone
+    });
+    #endregion
+
+    #region  CurrentPlayer
     public GameplayInput inputActions;
     public CharacterController characterController;
     [Header("Falling")]
@@ -14,19 +23,22 @@ public class PlayerOnline : NetworkBehaviour
     [SerializeField] public LayerMask ground;
     public Transform groundCheck;
     private float fallSpeed = 0;
+    #endregion
+
+
+
 
     private void Awake()
     {
-        //if(IsLocalPlayer)
-        //Input Actions init
         #region InputActions
-        inputActions = new GameplayInput();
-        var rebinds = PlayerPrefs.GetString("Rebinds");
-        if (!string.IsNullOrEmpty(rebinds))
-            inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
-
-
-        characterController = GetComponent<CharacterController>();
+        if (IsLocalPlayer)
+        {
+            inputActions = new GameplayInput();
+            var rebinds = PlayerPrefs.GetString("Rebinds");
+            if (!string.IsNullOrEmpty(rebinds))
+                inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
+            characterController = GetComponent<CharacterController>();
+        }
         #endregion
     }
     public void PlayerMover(Vector2 movement)
@@ -37,25 +49,33 @@ public class PlayerOnline : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (CheckIsGround())
-        {
-            fallSpeed = Mathf.Epsilon;
-        }
-        else
-        {
-            fallSpeed += Physics.gravity.y * Time.fixedDeltaTime;
-            characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime, 0));
-        }
 
-
-        if (inputActions.Player.Movement.IsPressed())
+        //updating for non players
+        if (!IsLocalPlayer)
         {
-            PlayerMover(inputActions.Player.Movement.ReadValue<Vector2>());
+            transform.position = positionUpdate.Value;
         }
+        //updating for current player
         if (IsLocalPlayer)
         {
+            if (CheckIsGround())
+            {
+                fallSpeed = Mathf.Epsilon;
+            }
+            else
+            {
+                fallSpeed += Physics.gravity.y * Time.fixedDeltaTime;
+                characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime, 0));
+            }
+            if (inputActions.Player.Movement.IsPressed())
+            {
+                PlayerMover(inputActions.Player.Movement.ReadValue<Vector2>());
+            }
+            positionUpdate.Value = transform.position;
 
         }
+
+
     }
 
     void MovePlayer(UnityEngine.InputSystem.InputAction.CallbackContext ctx)

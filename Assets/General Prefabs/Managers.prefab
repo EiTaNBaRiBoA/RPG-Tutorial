@@ -42,7 +42,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 711797681841232048}
-  - component: {fileID: 711797681841232046}
+  - component: {fileID: 3247924729025862646}
   - component: {fileID: 711797681841232047}
   m_Layer: 0
   m_Name: NetworkManager
@@ -65,7 +65,7 @@ Transform:
   m_Father: {fileID: 711797681839592272}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &711797681841232046
+--- !u!114 &3247924729025862646
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,7 +74,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 711797681841232049}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
+  m_Script: {fileID: 11500000, guid: 9eb54a7855845c14299466f520f8e1ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   DontDestroy: 1
@@ -84,12 +84,13 @@ MonoBehaviour:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 711797681841232047}
     RegisteredScenes:
-    - Main menu
     - Splash
-    - 
+    - Main menu
     - Game
     AllowRuntimeSceneChanges: 0
-    NetworkPrefabs: []
+    NetworkPrefabs:
+    - Prefab: {fileID: 1119268586717377811, guid: 3a62c7c4309ad274b9b7d4e5abc1a46e, type: 3}
+      PlayerPrefab: 0
     PlayerPrefabHash:
       id: 0
     CreatePlayerPrefab: 0
@@ -114,6 +115,7 @@ MonoBehaviour:
     EnableMessageBuffering: 1
     MessageBufferTimeout: 20
     EnableNetworkLogs: 1
+  player: {fileID: 0}
   references:
     version: 1
     00000000:
