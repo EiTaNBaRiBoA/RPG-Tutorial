@@ -17,9 +17,8 @@ public class ServerInformation : NetworkBehaviour
     }
     public void OnConnectedToServer()
     {
-        NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.StartClient();
         FindObjectOfType<NetworkGameManager>().player = playerObject;
-        FindObjectOfType<NetworkGameManager>().sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
     }
 
 
