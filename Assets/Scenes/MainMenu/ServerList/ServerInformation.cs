@@ -9,6 +9,7 @@ using MLAPI.SceneManagement;
 public class ServerInformation : NetworkBehaviour
 {
     public Text serverName, ServerStatus;
+    public NetworkObject playerObject;
 
     private void Awake()
     {
@@ -17,7 +18,8 @@ public class ServerInformation : NetworkBehaviour
     public void OnConnectedToServer()
     {
         NetworkManager.Singleton.StartHost();
-        var sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
+        FindObjectOfType<NetworkGameManager>().player = playerObject;
+        FindObjectOfType<NetworkGameManager>().sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
     }
 
 

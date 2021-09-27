@@ -2,22 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
-using UnityEngine.SceneManagement;
+using MLAPI.SceneManagement;
 
 public class NetworkGameManager : NetworkManager
 {
     #region Serverside
     [Header("Server")]
     public NetworkObject player;
+    private bool hasSpawned = false;
+    public SceneSwitchProgress sceneSwitchProgress;
     #endregion
 
     // Update is called once per frame
     void Update()
     {
-        if (IsHost)
+        if (IsHost && !hasSpawned && sceneSwitchProgress.IsCompleted)
         {
-            if (FindObjectsOfType<PlayerOnline>().Length == 1)
-                Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
+            Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
+            hasSpawned = true;
         }
     }
 }

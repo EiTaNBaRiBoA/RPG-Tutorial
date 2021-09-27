@@ -31,7 +31,7 @@ public class PlayerOnline : NetworkBehaviour
     private void Awake()
     {
         #region InputActions
-        if (IsLocalPlayer)
+        if (IsOwner)
         {
             inputActions = new GameplayInput();
             var rebinds = PlayerPrefs.GetString("Rebinds");
@@ -56,7 +56,7 @@ public class PlayerOnline : NetworkBehaviour
             transform.position = positionUpdate.Value;
         }
         //updating for current player
-        if (IsLocalPlayer)
+        if (IsOwner)
         {
             if (CheckIsGround())
             {
