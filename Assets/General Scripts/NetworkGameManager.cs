@@ -12,12 +12,12 @@ public class NetworkGameManager : NetworkManager
     public NetworkObject player;
     private bool hasSpawned = false;
     public SceneSwitchProgress sceneSwitchProgress = null;
+    private ulong newPlayer;
     #endregion
 
     // Update is called once per frame
     void Update()
     {
-
         if (!hasSpawned)
         {
             if (IsHost && IsClient)
@@ -33,18 +33,16 @@ public class NetworkGameManager : NetworkManager
     {
         if (IsServer)
         {
+            newPlayer = id;
+            NetworkSceneManager.OnSceneSwitched += SpawnPlayer;
             sceneSwitchProgress = NetworkSceneManager.SwitchScene("Game");
             hasSpawned = true;
-            StartCoroutine(SpawnPlayer());
         }
     }
-    public IEnumerator SpawnPlayer()
+    public void SpawnPlayer()
     {
-        while (!sceneSwitchProgress.IsCompleted)
-        {
-            yield return null;
-        }
-        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
+        Debug.Log("Completed");
+        Instantiate<NetworkObject>(player, player.transform.position, Quaternion.identity).SpawnWithOwnership(NetworkManager.Singleton.LocalClientId);
 
     }
 }
