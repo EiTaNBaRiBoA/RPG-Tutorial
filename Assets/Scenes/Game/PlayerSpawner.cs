@@ -12,6 +12,8 @@ public class PlayerSpawner : NetworkBehaviour
 
     private void Start()
     {
+
+        Debug.Log("Owner");
         if (!hasSpawned)
         {
             SpawnPlayerServerRpc(OwnerClientId);
@@ -20,7 +22,7 @@ public class PlayerSpawner : NetworkBehaviour
 
 
     // Start is called before the first frame update
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void SpawnPlayerServerRpc(ulong id)
     {
         if (IsServer)
