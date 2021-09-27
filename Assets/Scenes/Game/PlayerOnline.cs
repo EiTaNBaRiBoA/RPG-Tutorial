@@ -51,7 +51,7 @@ public class PlayerOnline : NetworkBehaviour
     {
 
         //updating for non players
-        if (!IsLocalPlayer)
+        if (!IsOwner)
         {
             transform.position = positionUpdate.Value;
         }
@@ -97,19 +97,28 @@ public class PlayerOnline : NetworkBehaviour
 
     private void OnEnable()
     {
-        inputActions.Enable();
-        inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
-        inputActions.Player.Jump.performed += ctx => JumpPlayer(ctx);
+        if (IsOwner)
+        {
+            inputActions.Enable();
+            inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
+            inputActions.Player.Jump.performed += ctx => JumpPlayer(ctx);
+        }
     }
 
     private void OnDisable()
     {
-        inputActions.Disable();
+        if (IsOwner)
+        {
+            inputActions.Disable();
+        }
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(groundCheck.position, characterController.radius * 2);
+        if (IsOwner)
+        {
+            Gizmos.DrawSphere(groundCheck.position, characterController.radius * 2);
+        }
     }
 
 }
