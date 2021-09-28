@@ -46,7 +46,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1119268585416693096
 Transform:
   m_ObjectHideFlags: 0
@@ -269,6 +269,7 @@ MonoBehaviour:
   positionUpdate:
     m_InternalValue: {x: 0, y: 0, z: 0}
   characterController: {fileID: 1119268586717377816}
+  playerCamera: {fileID: 1119268585416693095}
   ground:
     serializedVersion: 2
     m_Bits: 64

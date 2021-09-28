@@ -5,6 +5,11 @@ using MLAPI;
 using UnityEngine.InputSystem;
 using MLAPI.NetworkVariable;
 
+
+
+/// <summary>
+/// Awake and onenable and ondisable and start don't work on mlapi
+/// </summary>
 public class PlayerOnline : NetworkBehaviour
 {
     #region UpdatingVisualsToAllPlayers
@@ -18,6 +23,7 @@ public class PlayerOnline : NetworkBehaviour
     #region  CurrentPlayer
     [SerializeField] public GameplayInput inputActions;
     public CharacterController characterController;
+    public Camera playerCamera;
     [Header("Falling")]
 
     [SerializeField] public LayerMask ground;
@@ -76,6 +82,8 @@ public class PlayerOnline : NetworkBehaviour
             if (!string.IsNullOrEmpty(rebinds))
                 inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
             characterController = GetComponent<CharacterController>();
+            characterController.enabled = true;
+            playerCamera.enabled = true;
             inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
             inputActions.Player.Jump.performed += ctx => JumpPlayer(ctx);
             inputActions.Enable();
@@ -97,7 +105,7 @@ public class PlayerOnline : NetworkBehaviour
         if (CheckIsGround())
         {
             fallSpeed = Mathf.Sqrt(-2 * Physics.gravity.y);
-            characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime, 0));
+            characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime / 5, 0));
         }
     }
     private bool CheckIsGround()
