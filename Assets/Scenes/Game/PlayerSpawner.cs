@@ -29,7 +29,7 @@ public class PlayerSpawner : NetworkBehaviour
         {
             Debug.Log("Completed");
             hasSpawned = true;
-            Instantiate<NetworkObject>(player, transform.position, Quaternion.identity).SpawnWithOwnership(id);
+            Instantiate<NetworkObject>(player, transform.position, Quaternion.identity).SpawnAsPlayerObject(id);
         }
 
     }

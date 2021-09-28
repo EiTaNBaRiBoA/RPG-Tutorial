@@ -16,7 +16,8 @@ public class PlayerOnline : NetworkBehaviour
     #endregion
 
     #region  CurrentPlayer
-    public GameplayInput inputActions;
+    public PlayerInput playerInput;
+    [SerializeField] public GameplayInput inputActions;
     public CharacterController characterController;
     [Header("Falling")]
 
@@ -26,21 +27,6 @@ public class PlayerOnline : NetworkBehaviour
     #endregion
 
 
-
-
-    private void Awake()
-    {
-        #region InputActions
-        if (IsOwner)
-        {
-            inputActions = new GameplayInput();
-            var rebinds = PlayerPrefs.GetString("Rebinds");
-            if (!string.IsNullOrEmpty(rebinds))
-                inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
-            characterController = GetComponent<CharacterController>();
-        }
-        #endregion
-    }
     public void PlayerMover(Vector2 movement)
     {
         characterController.Move(new Vector3(movement.x, 0, movement.y) * Time.fixedDeltaTime * 2f);
@@ -51,13 +37,26 @@ public class PlayerOnline : NetworkBehaviour
     {
 
         //updating for non players
-        if (!IsOwner)
+        if (!IsLocalPlayer)
         {
             transform.position = positionUpdate.Value;
         }
         //updating for current player
-        if (IsOwner)
+        if (IsLocalPlayer)
         {
+            if (inputActions == null)
+            {
+                #region InputActions
+                if (IsLocalPlayer)
+                {
+                    inputActions = new GameplayInput();
+                    var rebinds = PlayerPrefs.GetString("Rebinds");
+                    if (!string.IsNullOrEmpty(rebinds))
+                        inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
+                    characterController = GetComponent<CharacterController>();
+                }
+                #endregion
+            }
             if (CheckIsGround())
             {
                 fallSpeed = Mathf.Epsilon;
@@ -97,7 +96,7 @@ public class PlayerOnline : NetworkBehaviour
 
     private void OnEnable()
     {
-        if (IsOwner)
+        if (IsLocalPlayer)
         {
             inputActions.Enable();
             inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
@@ -107,7 +106,7 @@ public class PlayerOnline : NetworkBehaviour
 
     private void OnDisable()
     {
-        if (IsOwner)
+        if (IsLocalPlayer)
         {
             inputActions.Disable();
         }
@@ -115,7 +114,7 @@ public class PlayerOnline : NetworkBehaviour
 
     private void OnDrawGizmos()
     {
-        if (IsOwner)
+        if (IsLocalPlayer)
         {
             Gizmos.DrawSphere(groundCheck.position, characterController.radius * 2);
         }
