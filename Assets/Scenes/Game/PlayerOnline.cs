@@ -17,17 +17,19 @@ public class PlayerOnline : NetworkBehaviour
     {
         WritePermission = NetworkVariablePermission.OwnerOnly,
         ReadPermission = NetworkVariablePermission.Everyone
-    });
+    });//This will update the position of each gameobject on the map without moving the player gameobject this is a network value and it changes through the network
+    // i made it so only the owner can change it and everyone can see it.
     #endregion
 
     #region  CurrentPlayer
     [SerializeField] public GameplayInput inputActions;
     public CharacterController characterController;
-    public Camera playerCamera;
+    public Camera playerCamera; // the camera is disable on default so players camera won't interfere with each other.
+    // i enable it on the initplayer method.
     [Header("Falling")]
 
-    [SerializeField] public LayerMask ground;
-    public Transform groundCheck;
+    [SerializeField] public LayerMask ground; // checking for ground
+    public Transform groundCheck; // the transform position of the ground check
     private float fallSpeed = 0;
     bool initPlayer = false;
     #endregion
@@ -37,12 +39,12 @@ public class PlayerOnline : NetworkBehaviour
     void Update()
     {
 
-        //updating for non players
+        //Checking if the person accessing the script is not the local player and updating the position for that specific gameobject
         if (!IsLocalPlayer)
         {
             transform.position = positionUpdate.Value;
         }
-        //updating for current player
+        //The current player movement
         if (IsLocalPlayer)
         {
             if (inputActions == null && !initPlayer)
@@ -70,11 +72,13 @@ public class PlayerOnline : NetworkBehaviour
 
     }
 
+    /// <summary>
+    /// initializing input actions for one time only
+    /// </summary>
     private void InitInputActions()
     {
         if (!initPlayer)
         {
-            Debug.Log("Initplayer");
             #region InputActions
             inputActions = new GameplayInput();
             inputActions.Disable();
@@ -83,7 +87,7 @@ public class PlayerOnline : NetworkBehaviour
                 inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
             characterController = GetComponent<CharacterController>();
             characterController.enabled = true;
-            playerCamera.enabled = true;
+            playerCamera.gameObject.SetActive(true);
             inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
             inputActions.Player.Jump.performed += ctx => JumpPlayer(ctx);
             inputActions.Enable();

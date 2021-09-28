@@ -20,7 +20,12 @@ public class PlayerSpawner : NetworkBehaviour
     }
 
 
-    // Start is called before the first frame update
+    // I don't want to spawn the player when he is connected but when he switches to the game map
+    /// <summary>
+    /// This method means that i don't require only the owner/HOST of the server to call serverRPC but instead everyone
+    /// can call it but only the server can execute it
+    /// </summary>
+    /// <param name="id">the client id that will own the gameobject</param>
     [ServerRpc(RequireOwnership = false)]
     public void SpawnPlayerServerRpc(ulong id)
     {
