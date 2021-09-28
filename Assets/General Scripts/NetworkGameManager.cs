@@ -15,7 +15,6 @@ public class NetworkGameManager : NetworkManager
     {
         if (IsServer)
         {
-            Debug.Log("Switching scenes");
             NetworkSceneManager.SwitchScene("Game");
         }
     }

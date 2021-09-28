@@ -13,7 +13,6 @@ public class PlayerSpawner : NetworkBehaviour
     private void Start()
     {
 
-        Debug.Log("Owner");
         if (!hasSpawned)
         {
             SpawnPlayerServerRpc(NetworkManager.LocalClientId);
@@ -27,7 +26,6 @@ public class PlayerSpawner : NetworkBehaviour
     {
         if (IsServer)
         {
-            Debug.Log("Completed");
             hasSpawned = true;
             Instantiate<NetworkObject>(player, transform.position, Quaternion.identity).SpawnAsPlayerObject(id);
         }
