@@ -45,10 +45,16 @@ public class ServerInformation : NetworkBehaviour
 
     private void Start()
     {
-        if (serverType == ServerType.Client)
-            tcp = new TCP(ipAddress, port);
+        CheckForServer();
 
     }
+
+    public void CheckForServer()
+    {
+        if (serverType == ServerType.Client)
+            tcp = new TCP(ipAddress, port);
+    }
+
     private void Update()
     {
         if (tcp != null && tcp.isOnline && ServerStatus.text != "Online")

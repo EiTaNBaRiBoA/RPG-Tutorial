@@ -14,8 +14,7 @@ public class RefreshServerInfo : MonoBehaviour
         if (serversinfo != null)
             foreach (var server in serversinfo)
             {
-                if (server.serverType == ServerType.Client)
-                    server.tcp.CheckAvailability();
+                server.CheckForServer();
             }
     }
 }

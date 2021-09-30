@@ -2729,6 +2729,7 @@ GameObject:
   - component: {fileID: 1363605431}
   - component: {fileID: 1363605430}
   - component: {fileID: 1363605429}
+  - component: {fileID: 1363605432}
   m_Layer: 5
   m_Name: Refresh Status
   m_TagString: Untagged
@@ -2800,13 +2801,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1332652114}
-        m_TargetAssemblyTypeName: UIMenuController, Assembly-CSharp
-        m_MethodName: ChangePanelTo
-        m_Mode: 2
+      - m_Target: {fileID: 1363605432}
+        m_TargetAssemblyTypeName: RefreshServerInfo, Assembly-CSharp
+        m_MethodName: onRefresh
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 351973900}
-          m_ObjectArgumentAssemblyTypeName: UIPanel, Assembly-CSharp
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2850,6 +2851,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1363605427}
   m_CullTransparentMesh: 1
+--- !u!114 &1363605432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1363605427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5efb5f12015034e4bbccd0e538b5f458, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1366987285
 GameObject:
   m_ObjectHideFlags: 0
