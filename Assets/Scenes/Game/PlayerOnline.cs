@@ -21,23 +21,31 @@ public class PlayerOnline : NetworkBehaviour
     // i made it so only the owner can change it and everyone can see it.
     #endregion
 
-    #region  CurrentPlayer
+    #region  Player Server Set up
+    private bool initPlayer = false;
     [SerializeField] public GameplayInput inputActions;
     public CharacterController characterController;
     public Camera playerCamera; // the camera is disable on default so players camera won't interfere with each other.
-    // i enable it on the initplayer method.
-    [Header("Falling and moving")]
-    private bool isGround = false;
-    private int jumpHeight = 5;
-    Vector3 movement = Vector3.zero;
+                                // i enable it on the initplayer method.
 
+
+    [Header("Player's movement and jump")]
+
+    #region Jumping and Gravity
+    private int jumpHeight = 20;
+    private bool shouldJump = false;
     [SerializeField] public LayerMask ground; // checking for ground
     public Transform groundCheck; // the transform position of the ground check
-    bool initPlayer = false;
+    #endregion
+
+    #region Movement
+    Vector3 movement = Vector3.zero;
+
+    #endregion
+
     #endregion
 
 
-    // Update is called once per frame
     void Update()
     {
         //Checking if the person accessing the script is not the local player and updating the position for that specific gameobject
@@ -45,27 +53,24 @@ public class PlayerOnline : NetworkBehaviour
         {
             transform.position = positionUpdate.Value;
         }
+
+
+
+
         //The current player movement
         if (IsLocalPlayer)
         {
+
+            //init player setup
             if (inputActions == null && !initPlayer)
             {
                 InitInputActions();
                 initPlayer = true;
 
             }
-            isGround = CheckIsGround();
-            if (isGround) // checks if the jump key is being pressed
-            {
-                movement.y = JumpGravity();
-            }
-            else if (!isGround)
-            {
-                movement.y += JumpGravity();
-            }
 
 
-            Debug.Log(movement);
+            movement.y = Gravity();
             characterController.Move(movement);
             positionUpdate.Value = transform.position;
 
@@ -94,7 +99,7 @@ public class PlayerOnline : NetworkBehaviour
             movement.x = 0;
             movement.z = 0;
         };
-        inputActions.Player.Jump.performed += ctx => JumpGravity();
+        inputActions.Player.Jump.performed += (ctx) => { shouldJump = true; };
         inputActions.Enable();
         #endregion
     }
@@ -108,19 +113,18 @@ public class PlayerOnline : NetworkBehaviour
         this.movement.x = transform.right.magnitude * movement.x * Time.deltaTime * 15f;
         this.movement.z = transform.forward.magnitude * movement.y * Time.deltaTime * 15f;
     }
-    private float JumpGravity()
+    private float Gravity()
     {
-        if (isGround && inputActions.Player.Jump.inProgress)
+        if (CheckIsGround() && shouldJump)
         {
-            isGround = false;
-            return Mathf.Sqrt(-2 * Physics.gravity.y * 2) * Time.deltaTime * jumpHeight;
-
+            return Mathf.Sqrt(-2 * Physics.gravity.y * jumpHeight) * Time.deltaTime * 10000;
         }
-        else if (isGround)
+        else if (CheckIsGround() && !shouldJump)
         {
-            this.movement.y = 0;
+            return 0;
         }
-        return Physics.gravity.y * Time.deltaTime * 0.1f;
+        shouldJump = false;
+        return (this.movement.y + Physics.gravity.y) * Time.deltaTime;
     }
     private bool CheckIsGround()
     {
