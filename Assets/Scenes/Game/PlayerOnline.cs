@@ -26,11 +26,13 @@ public class PlayerOnline : NetworkBehaviour
     public CharacterController characterController;
     public Camera playerCamera; // the camera is disable on default so players camera won't interfere with each other.
     // i enable it on the initplayer method.
-    [Header("Falling")]
+    [Header("Falling and moving")]
+    private bool isGround = false;
+    private int jumpHeight = 5;
+    Vector3 movement = Vector3.zero;
 
     [SerializeField] public LayerMask ground; // checking for ground
     public Transform groundCheck; // the transform position of the ground check
-    private float fallSpeed = 0;
     bool initPlayer = false;
     #endregion
 
@@ -38,7 +40,6 @@ public class PlayerOnline : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
         //Checking if the person accessing the script is not the local player and updating the position for that specific gameobject
         if (!IsLocalPlayer)
         {
@@ -50,21 +51,22 @@ public class PlayerOnline : NetworkBehaviour
             if (inputActions == null && !initPlayer)
             {
                 InitInputActions();
+                initPlayer = true;
 
             }
-            if (CheckIsGround())
+            isGround = CheckIsGround();
+            if (isGround) // checks if the jump key is being pressed
             {
-                fallSpeed = Mathf.Epsilon;
+                movement.y = JumpGravity();
             }
-            else
+            else if (!isGround)
             {
-                fallSpeed += Physics.gravity.y * Time.deltaTime;
-                characterController.Move(new Vector3(0, fallSpeed, 0));
+                movement.y += JumpGravity();
             }
-            if (inputActions.Player.Movement.IsPressed())
-            {
-                PlayerMover(inputActions.Player.Movement.ReadValue<Vector2>());
-            }
+
+
+            Debug.Log(movement);
+            characterController.Move(movement);
             positionUpdate.Value = transform.position;
 
         }
@@ -77,22 +79,23 @@ public class PlayerOnline : NetworkBehaviour
     /// </summary>
     private void InitInputActions()
     {
-        if (!initPlayer)
+        #region InputActions
+        inputActions = new GameplayInput();
+        inputActions.Disable();
+        var rebinds = PlayerPrefs.GetString("Rebinds");
+        if (!string.IsNullOrEmpty(rebinds))
+            inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
+        characterController = GetComponent<CharacterController>();
+        characterController.enabled = true;
+        playerCamera.gameObject.SetActive(true);
+        inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
+        inputActions.Player.Movement.canceled += (ctx) =>
         {
-            #region InputActions
-            inputActions = new GameplayInput();
-            inputActions.Disable();
-            var rebinds = PlayerPrefs.GetString("Rebinds");
-            if (!string.IsNullOrEmpty(rebinds))
-                inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
-            characterController = GetComponent<CharacterController>();
-            characterController.enabled = true;
-            playerCamera.gameObject.SetActive(true);
-            inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
-            inputActions.Player.Jump.performed += ctx => JumpPlayer(ctx);
-            inputActions.Enable();
-            initPlayer = true;
-        }
+            movement.x = 0;
+            movement.z = 0;
+        };
+        inputActions.Player.Jump.performed += ctx => JumpGravity();
+        inputActions.Enable();
         #endregion
     }
 
@@ -102,15 +105,22 @@ public class PlayerOnline : NetworkBehaviour
     }
     public void PlayerMover(Vector2 movement)
     {
-        characterController.Move(new Vector3(movement.x, 0, movement.y) * Time.deltaTime * 15f);
+        this.movement.x = transform.right.magnitude * movement.x * Time.deltaTime * 15f;
+        this.movement.z = transform.forward.magnitude * movement.y * Time.deltaTime * 15f;
     }
-    void JumpPlayer(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    private float JumpGravity()
     {
-        if (CheckIsGround())
+        if (isGround && inputActions.Player.Jump.inProgress)
         {
-            fallSpeed = Mathf.Sqrt(-2 * Physics.gravity.y);
-            characterController.Move(new Vector3(0, fallSpeed * Time.deltaTime / 5, 0));
+            isGround = false;
+            return Mathf.Sqrt(-2 * Physics.gravity.y * 2) * Time.deltaTime * jumpHeight;
+
         }
+        else if (isGround)
+        {
+            this.movement.y = 0;
+        }
+        return Physics.gravity.y * Time.deltaTime * 0.1f;
     }
     private bool CheckIsGround()
     {
