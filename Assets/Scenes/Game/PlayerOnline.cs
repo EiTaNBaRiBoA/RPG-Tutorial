@@ -34,7 +34,9 @@ public class PlayerOnline : NetworkBehaviour
     #region Movement
     [Header("Player's movement and jump")]
 
-    private int jumpHeight = 20;
+
+    private float speed = 15f;
+    private float jumpHeight = 30f;
     private bool shouldJump = false;
     [SerializeField] public LayerMask ground; // checking for ground
     public Transform groundCheck; // the transform position of the ground check
@@ -65,8 +67,10 @@ public class PlayerOnline : NetworkBehaviour
                 initPlayer = true;
 
             }
-            movement.y = Gravity();
-            characterController.Move(movement);
+            Gravity();
+            movement.x = inputActions.Player.Movement.ReadValue<Vector2>().x * speed;
+            movement.z = inputActions.Player.Movement.ReadValue<Vector2>().y * speed;
+            PlayerMovement();
             positionUpdate.Value = transform.position;
 
         }
@@ -85,15 +89,9 @@ public class PlayerOnline : NetworkBehaviour
         if (!string.IsNullOrEmpty(rebinds))
             inputActions.Player.Movement.LoadBindingOverridesFromJson(rebinds);
         characterController = GetComponent<CharacterController>();
+        inputActions.Player.Jump.performed += (ctx) => { if (CheckIsGround()) shouldJump = true; };
         characterController.enabled = true;
         playerCamera.gameObject.SetActive(true);
-        inputActions.Player.Movement.performed += ctx => MovePlayer(ctx);
-        inputActions.Player.Movement.canceled += (ctx) =>
-        {
-            movement.x = 0;
-            movement.z = 0;
-        };
-        inputActions.Player.Jump.performed += (ctx) => { shouldJump = true; };
         inputActions.Enable();
     }
 
@@ -101,28 +99,25 @@ public class PlayerOnline : NetworkBehaviour
 
 
     #region Movement and gravity handling
-    void MovePlayer(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    void PlayerMovement()
     {
-        PlayerMover(ctx.ReadValue<Vector2>());
+        characterController.Move(movement * Time.deltaTime);
     }
-    public void PlayerMover(Vector2 movement)
-    {
-        this.movement.x = transform.right.magnitude * movement.x * Time.deltaTime * 15f;
-        this.movement.z = transform.forward.magnitude * movement.y * Time.deltaTime * 15f;
-    }
-    private float Gravity()
+    private void Gravity()
     {
         if (CheckIsGround() && shouldJump)
         {
-            return Mathf.Sqrt(-2 * Physics.gravity.y * jumpHeight) * Time.deltaTime * 100;
+            shouldJump = false;
+            movement.y = Mathf.Sqrt(-2 * Physics.gravity.y * jumpHeight);
         }
-        else if (CheckIsGround() && !shouldJump)
+        else if (CheckIsGround() && movement.y < -1)
         {
-            return 0;
+            movement.y = 0;
         }
-        shouldJump = false;
-        return (this.movement.y + Physics.gravity.y) * Time.deltaTime;
+        movement.y += Physics.gravity.y * Time.deltaTime * 5f;
     }
+
+    //Check if there is a ground
     private bool CheckIsGround()
     {
         return Physics.CheckSphere(groundCheck.position, characterController.radius * 2, ground);
