@@ -12,7 +12,7 @@ using MLAPI.NetworkVariable;
 /// </summary>
 public class PlayerOnline : NetworkBehaviour
 {
-    #region UpdatingVisualsToAllPlayers
+    #region Network Variables
     public NetworkVariable<Vector3> positionUpdate = new NetworkVariable<Vector3>(new NetworkVariableSettings
     {
         WritePermission = NetworkVariablePermission.OwnerOnly,
@@ -27,23 +27,21 @@ public class PlayerOnline : NetworkBehaviour
     public CharacterController characterController;
     public Camera playerCamera; // the camera is disable on default so players camera won't interfere with each other.
                                 // i enable it on the initplayer method.
+    #endregion
 
 
+
+    #region Movement
     [Header("Player's movement and jump")]
 
-    #region Jumping and Gravity
     private int jumpHeight = 20;
     private bool shouldJump = false;
     [SerializeField] public LayerMask ground; // checking for ground
     public Transform groundCheck; // the transform position of the ground check
-    #endregion
-
-    #region Movement
     Vector3 movement = Vector3.zero;
 
     #endregion
 
-    #endregion
 
 
     void Update()
@@ -60,7 +58,6 @@ public class PlayerOnline : NetworkBehaviour
         //The current player movement
         if (IsLocalPlayer)
         {
-
             //init player setup
             if (inputActions == null && !initPlayer)
             {
@@ -68,23 +65,20 @@ public class PlayerOnline : NetworkBehaviour
                 initPlayer = true;
 
             }
-
-
             movement.y = Gravity();
             characterController.Move(movement);
             positionUpdate.Value = transform.position;
 
         }
-
-
     }
 
+
+    #region init inputs
     /// <summary>
     /// initializing input actions for one time only
     /// </summary>
     private void InitInputActions()
     {
-        #region InputActions
         inputActions = new GameplayInput();
         inputActions.Disable();
         var rebinds = PlayerPrefs.GetString("Rebinds");
@@ -101,9 +95,12 @@ public class PlayerOnline : NetworkBehaviour
         };
         inputActions.Player.Jump.performed += (ctx) => { shouldJump = true; };
         inputActions.Enable();
-        #endregion
     }
 
+    #endregion
+
+
+    #region Movement and gravity handling
     void MovePlayer(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         PlayerMover(ctx.ReadValue<Vector2>());
@@ -117,7 +114,7 @@ public class PlayerOnline : NetworkBehaviour
     {
         if (CheckIsGround() && shouldJump)
         {
-            return Mathf.Sqrt(-2 * Physics.gravity.y * jumpHeight) * Time.deltaTime * 10000;
+            return Mathf.Sqrt(-2 * Physics.gravity.y * jumpHeight) * Time.deltaTime * 100;
         }
         else if (CheckIsGround() && !shouldJump)
         {
@@ -131,12 +128,6 @@ public class PlayerOnline : NetworkBehaviour
         return Physics.CheckSphere(groundCheck.position, characterController.radius * 2, ground);
     }
 
-    private void OnDrawGizmos()
-    {
-        if (IsLocalPlayer)
-        {
-            Gizmos.DrawSphere(groundCheck.position, characterController.radius * 2);
-        }
-    }
 
+    #endregion
 }
