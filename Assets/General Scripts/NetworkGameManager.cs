@@ -4,6 +4,7 @@ using UnityEngine;
 using MLAPI;
 using MLAPI.SceneManagement;
 using MLAPI.Messaging;
+using System;
 
 public class NetworkGameManager : NetworkManager
 {
@@ -19,4 +20,27 @@ public class NetworkGameManager : NetworkManager
         }
     }
 
+
+
 }
+
+#region serverSend
+public class ServerSend : NetworkBehaviour
+{
+    public void RecievingConnection(ServerStatus serverStatus, ServerInformation.TCP tcp)
+    {
+        if (!IsServer || !IsHost) return;
+        using (Packet packet = new Packet((int)ServerPackets.welcome))
+        {
+            packet.Write((int)serverStatus);
+            SendTCPData(packet, tcp);
+        }
+    }
+
+    private void SendTCPData(Packet packet, ServerInformation.TCP tcp)
+    {
+        packet.WriteLength();
+        tcp.SendData(packet);
+    }
+}
+#endregion
